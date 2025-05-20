@@ -7,6 +7,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/demandas")
 public class DemandaController {
@@ -23,5 +25,12 @@ public class DemandaController {
         var uri = uriComponentsBuilder.path("/demandas/{id}").buildAndExpand(demandaSalva.id()).toUri();
 
         return ResponseEntity.created(uri).body(demandaSalva);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity deletarDemanda(@PathVariable UUID id){
+        demandaService.deletarDemanda(id);
+
+        return ResponseEntity.noContent().build();
     }
 }
