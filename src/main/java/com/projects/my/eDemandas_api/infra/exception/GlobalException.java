@@ -1,4 +1,4 @@
-package com.projects.my.eDemandas_api.excpetion;
+package com.projects.my.eDemandas_api.infra.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
