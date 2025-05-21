@@ -1,8 +1,7 @@
 package com.projects.my.eDemandas_api.dto;
 
+import com.projects.my.eDemandas_api.entity.Demanda;
 import com.projects.my.eDemandas_api.entity.Status;
-
-import java.util.UUID;
 
 public record InformarDemandaDto(
         String id,
@@ -10,4 +9,12 @@ public record InformarDemandaDto(
         String documento,
         Status status
 ) {
+    public InformarDemandaDto(Demanda demanda) {
+        this(
+                demanda.getId().toString(),
+                demanda.getNome(),
+                demanda.getDocumento(),
+                demanda.getStatus()
+        );
+    }
 }

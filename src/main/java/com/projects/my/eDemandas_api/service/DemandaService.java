@@ -1,11 +1,16 @@
 package com.projects.my.eDemandas_api.service;
 
+import com.projects.my.eDemandas_api.dto.AtualizarDemandaDto;
 import com.projects.my.eDemandas_api.dto.CadastrarDemandaDto;
 import com.projects.my.eDemandas_api.dto.InformarDemandaDto;
 import com.projects.my.eDemandas_api.entity.Demanda;
 import com.projects.my.eDemandas_api.entity.Status;
 import com.projects.my.eDemandas_api.excpetion.DemandaNaoEncontradaExcpetion;
+import com.projects.my.eDemandas_api.excpetion.ExcluirDemandaStatusFinalizadoException;
 import com.projects.my.eDemandas_api.repository.DemandaRepository;
+import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -18,6 +23,14 @@ public class DemandaService {
     public DemandaService(DemandaRepository demandaRepository) {
         this.demandaRepository = demandaRepository;
     }
+
+    private Demanda obterDemandaOuExcpetion(UUID id){
+        var demanda = demandaRepository.findById(id)
+                .orElseThrow(() -> new DemandaNaoEncontradaExcpetion("Demanda com ID: " + id + " não encontrado."));
+
+        return demanda;
+    }
+
 
     public InformarDemandaDto salvarDemanda(CadastrarDemandaDto dto){
         Demanda demanda = new Demanda(dto);
@@ -39,16 +52,28 @@ public class DemandaService {
             demandaRepository.delete(demanda);
         }
         else {
-            throw new DemandaNaoEncontradaExcpetion("A demanda deve ter o status FINALIZADO para poder ser excluida!");
+            throw new ExcluirDemandaStatusFinalizadoException("A demanda deve ter o status FINALIZADO para poder ser excluida!");
         }
 
     }
 
-    private Demanda obterDemandaOuExcpetion(UUID id){
-        var demanda = demandaRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Demanda com ID: " + id + " não encontrado."));
+    public InformarDemandaDto atualizarDemanda(AtualizarDemandaDto dto, UUID id) {
+        var demanda = obterDemandaOuExcpetion(id);
+        demanda.atualizar(dto);
+        demandaRepository.save(demanda);
 
-        return demanda;
+        return new InformarDemandaDto(
+                demanda.getId().toString(),
+                demanda.getNome(),
+                demanda.getDocumento(),
+                demanda.getStatus()
+        );
     }
+
+    public Page<InformarDemandaDto> buscarDemandas(Pageable pageable){
+        var demandas = demandaRepository.findAll(pageable);
+        return demandas.map(InformarDemandaDto::new);
+    }
+
 }
 

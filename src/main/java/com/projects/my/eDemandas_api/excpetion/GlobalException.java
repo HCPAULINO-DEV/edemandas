@@ -15,6 +15,13 @@ public class GlobalException {
         return ResponseEntity.status(status).body(mensagem);
     }
 
+    @ExceptionHandler(ExcluirDemandaStatusFinalizadoException.class)
+    public ResponseEntity<RetornarErroDto> handlerExcluirDemandaStatusFinalizado(ExcluirDemandaStatusFinalizadoException ex){
+        var status = HttpStatus.BAD_REQUEST;
+        var mensagem = new RetornarErroDto(status.toString(), ex.getMessage());
+        return ResponseEntity.status(status).body(mensagem);
+    }
+
     private record RetornarErroDto(
             String status,
             String mensagem

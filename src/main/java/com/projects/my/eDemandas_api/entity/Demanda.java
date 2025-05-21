@@ -1,5 +1,6 @@
 package com.projects.my.eDemandas_api.entity;
 
+import com.projects.my.eDemandas_api.dto.AtualizarDemandaDto;
 import com.projects.my.eDemandas_api.dto.CadastrarDemandaDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -26,5 +27,17 @@ public class Demanda {
     public Demanda(CadastrarDemandaDto dto){
         this.nome = dto.nome();
         this.documento = dto.documento();
+    }
+
+    public void atualizar(AtualizarDemandaDto dto){
+        if (dto.nome() != null){
+            this.nome = dto.nome();
+        }
+        if (dto.documento() != null){
+            this.documento = dto.documento();
+        }
+        if (dto.status() != null){
+            this.status = dto.status();
+        }
     }
 }
