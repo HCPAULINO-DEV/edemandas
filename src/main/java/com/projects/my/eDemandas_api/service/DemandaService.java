@@ -7,6 +7,7 @@ import com.projects.my.eDemandas_api.entity.Demanda;
 import com.projects.my.eDemandas_api.entity.Status;
 import com.projects.my.eDemandas_api.infra.exception.DemandaNaoEncontradaExcpetion;
 import com.projects.my.eDemandas_api.infra.exception.ExcluirDemandaStatusFinalizadoException;
+import com.projects.my.eDemandas_api.infra.validation.DemandaValidations;
 import com.projects.my.eDemandas_api.repository.DemandaRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,12 +19,14 @@ import java.util.UUID;
 public class DemandaService {
 
     private final DemandaRepository demandaRepository;
+    private final DemandaValidations demandaValidations;
 
-    public DemandaService(DemandaRepository demandaRepository) {
+    public DemandaService(DemandaRepository demandaRepository, DemandaValidations demandaValidations) {
         this.demandaRepository = demandaRepository;
+        this.demandaValidations = demandaValidations;
     }
 
-    private Demanda obterDemandaOuExcpetion(UUID id){
+    protected Demanda obterDemandaOuExcpetion(UUID id){
         var demanda = demandaRepository.findById(id)
                 .orElseThrow(() -> new DemandaNaoEncontradaExcpetion("Demanda com ID: " + id + " não encontrado."));
 
@@ -47,13 +50,8 @@ public class DemandaService {
 
     public void deletarDemanda(UUID id) {
         var demanda = obterDemandaOuExcpetion(id);
-        if (demanda.getStatus() == Status.FINALIZADO){
-            demandaRepository.delete(demanda);
-        }
-        else {
-            throw new ExcluirDemandaStatusFinalizadoException("A demanda deve ter o status FINALIZADO para poder ser excluida!");
-        }
-
+        demandaValidations.validarExcluirDemandaStatusFinalizado(demanda);
+        demandaRepository.delete(demanda);
     }
 
     public InformarDemandaDto atualizarDemanda(AtualizarDemandaDto dto, UUID id) {
