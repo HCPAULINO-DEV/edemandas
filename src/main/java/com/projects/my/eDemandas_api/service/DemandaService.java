@@ -6,13 +6,13 @@ import com.projects.my.eDemandas_api.dto.InformarDemandaDto;
 import com.projects.my.eDemandas_api.entity.Demanda;
 import com.projects.my.eDemandas_api.entity.Status;
 import com.projects.my.eDemandas_api.infra.exception.DemandaNaoEncontradaExcpetion;
-import com.projects.my.eDemandas_api.infra.exception.ExcluirDemandaStatusFinalizadoException;
 import com.projects.my.eDemandas_api.infra.validation.DemandaValidations;
 import com.projects.my.eDemandas_api.repository.DemandaRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -20,10 +20,12 @@ public class DemandaService {
 
     private final DemandaRepository demandaRepository;
     private final DemandaValidations demandaValidations;
+    private final List<DemandaValidations> validations;
 
-    public DemandaService(DemandaRepository demandaRepository, DemandaValidations demandaValidations) {
+    public DemandaService(DemandaRepository demandaRepository, DemandaValidations demandaValidations, List<DemandaValidations> validations) {
         this.demandaRepository = demandaRepository;
         this.demandaValidations = demandaValidations;
+        this.validations = validations;
     }
 
     protected Demanda obterDemandaOuExcpetion(UUID id){
@@ -50,7 +52,7 @@ public class DemandaService {
 
     public void deletarDemanda(UUID id) {
         var demanda = obterDemandaOuExcpetion(id);
-        demandaValidations.validarExcluirDemandaStatusFinalizado(demanda);
+        validations.forEach(v -> v.validar(demanda));
         demandaRepository.delete(demanda);
     }
 
